@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1038512869705",
+    "firebase_url": "https://asistenciaprofesor.firebaseio.com",
+    "project_id": "asistenciaprofesor",
+    "storage_bucket": "asistenciaprofesor.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1038512869705:android:b3e786f7b8d5b224",
+        "android_client_info": {
+          "package_name": "com.example.usuario.asistenciaprofesorv1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1038512869705-9aj8cvvasuob2jnjjom2drsars3mut3i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDJMvq_6BGmPrdCUOwf8IIMg4ifpYf3kI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1038512869705-9aj8cvvasuob2jnjjom2drsars3mut3i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
