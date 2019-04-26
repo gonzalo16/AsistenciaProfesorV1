@@ -19,7 +19,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".modelo.CrearUsuario" />
-        <activity android:name=".modelo.VentanaPrincipal"></activity>
+        <activity android:name=".modelo.VentanaPrincipal" />
+        <activity android:name=".modelo.VentanaProfesor"></activity>
     </application>
 
 </manifest>
