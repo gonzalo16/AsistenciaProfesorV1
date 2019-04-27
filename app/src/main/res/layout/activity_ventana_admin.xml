@@ -7,12 +7,15 @@
     android:orientation="vertical"
     tools:context=".modelo.VentanaAdmin">
 
+    <include layout="@layout/toolbar"></include>
+
     <TextView
         android:textSize="20sp"
         android:text="Admin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-
-
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"></android.support.v7.widget.RecyclerView>
 </LinearLayout>
