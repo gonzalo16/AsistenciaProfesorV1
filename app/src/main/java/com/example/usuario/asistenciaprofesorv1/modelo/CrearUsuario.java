@@ -10,17 +10,25 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.usuario.asistenciaprofesorv1.R;
+import com.example.usuario.asistenciaprofesorv1.entidades.Profesor;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.UUID;
 
 public class CrearUsuario extends AppCompatActivity implements View.OnClickListener{
 
     private EditText editTextNombre,editTextApellido,editTextNick,editTextEmail,editTextPassword;
     private Button botonCrear;
     private FirebaseAuth autentication;
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference databaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +43,11 @@ public class CrearUsuario extends AppCompatActivity implements View.OnClickListe
         botonCrear=findViewById(R.id.btnUnirse);
         botonCrear.setOnClickListener(this);
 
+        FirebaseApp.initializeApp(this);
         autentication=FirebaseAuth.getInstance();
+        firebaseDatabase=FirebaseDatabase.getInstance();
+        databaseReference=firebaseDatabase.getReference();
+
     }
 
     private void registrar(){
@@ -52,6 +64,17 @@ public class CrearUsuario extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
+
+                        Profesor p=new Profesor();
+                        p.setUID(UUID.randomUUID().toString());
+                        p.setNombre(nombre);
+                        p.setPerfil("Profesor");
+                        p.setNick(nick);
+                        p.setApellido(apellido);
+                        p.setEmail(email);
+                        p.setPassword(password);
+                        //Creamos un nodo Usuario
+                        databaseReference.child("Usuario").child(p.getUID()).setValue(p);
                         Toast.makeText(getApplicationContext(),"Se ha registrado correctamente",Toast.LENGTH_LONG).show();
                         finish();
                         //cargarWebService(nombre,apellido,nick,email,password);

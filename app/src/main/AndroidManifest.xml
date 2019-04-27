@@ -20,7 +20,8 @@
         </activity>
         <activity android:name=".modelo.CrearUsuario" />
         <activity android:name=".modelo.VentanaPrincipal" />
-        <activity android:name=".modelo.VentanaProfesor"></activity>
+        <activity android:name=".modelo.VentanaProfesor" />
+        <activity android:name=".modelo.VentanaAdmin"></activity>
     </application>
 
 </manifest>
