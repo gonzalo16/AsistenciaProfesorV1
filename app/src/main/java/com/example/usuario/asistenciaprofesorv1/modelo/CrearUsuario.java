@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.example.usuario.asistenciaprofesorv1.R;
 import com.example.usuario.asistenciaprofesorv1.entidades.Profesor;
+import com.example.usuario.asistenciaprofesorv1.entidades.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
@@ -65,19 +66,21 @@ public class CrearUsuario extends AppCompatActivity implements View.OnClickListe
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
 
-                        Profesor p=new Profesor();
-                        p.setUID(UUID.randomUUID().toString());
-                        p.setNombre(nombre);
-                        p.setPerfil("Profesor");
-                        p.setNick(nick);
-                        p.setApellido(apellido);
-                        p.setEmail(email);
-                        p.setPassword(password);
+                        Usuario u=new Usuario();
+                        u.setNombre(nombre);
+                        u.setApellido(apellido);
+                        u.setEmail(email);
+                        u.setNick(nick);
+                        u.setPerfil("Profesor");
+                        u.setUid(UUID.randomUUID().toString());
+                        u.setPassword(password);
+
                         //Creamos un nodo Usuario
-                        databaseReference.child("Usuario").child(p.getUID()).setValue(p);
+                        databaseReference.child("Usuario").child(u.getUid()).setValue(u);
                         Toast.makeText(getApplicationContext(),"Se ha registrado correctamente",Toast.LENGTH_LONG).show();
                         finish();
-                        //cargarWebService(nombre,apellido,nick,email,password);
+
+
                     }else{
                         if(task.getException() instanceof FirebaseAuthUserCollisionException){
                             Toast.makeText(getApplicationContext(),"El correo ya existe",Toast.LENGTH_LONG).show();
