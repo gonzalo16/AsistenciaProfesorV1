@@ -76,7 +76,7 @@ public class CrearUsuario extends AppCompatActivity implements View.OnClickListe
                         u.setPassword(password);
 
                         //Creamos un nodo Usuario
-                        databaseReference.child("Usuario").child(u.getUid()).setValue(u);
+                        databaseReference.child("Usuario").child(nombre).setValue(u);
                         Toast.makeText(getApplicationContext(),"Se ha registrado correctamente",Toast.LENGTH_LONG).show();
                         finish();
 

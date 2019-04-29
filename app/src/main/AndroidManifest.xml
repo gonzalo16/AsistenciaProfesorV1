@@ -21,7 +21,8 @@
         <activity android:name=".modelo.CrearUsuario" />
         <activity android:name=".modelo.VentanaPrincipal" />
         <activity android:name=".modelo.VentanaProfesor" />
-        <activity android:name=".modelo.VentanaAdmin"></activity>
+        <activity android:name=".modelo.VentanaAdmin" />
+        <activity android:name=".modelo.VentanaAddGuardia"></activity>
     </application>
 
 </manifest>
