@@ -22,7 +22,8 @@
         <activity android:name=".modelo.VentanaPrincipal" />
         <activity android:name=".modelo.VentanaProfesor" />
         <activity android:name=".modelo.VentanaAdmin" />
-        <activity android:name=".modelo.VentanaAddGuardia"></activity>
+        <activity android:name=".modelo.VentanaAddGuardia" />
+        <activity android:name=".modelo.VentanaGuardias"></activity>
     </application>
 
 </manifest>

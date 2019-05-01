@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.example.usuario.asistenciaprofesorv1.entidades.Usuario;
 import com.example.usuario.asistenciaprofesorv1.modelo.CrearUsuario;
 import com.example.usuario.asistenciaprofesorv1.modelo.VentanaAdmin;
+import com.example.usuario.asistenciaprofesorv1.modelo.VentanaGuardias;
 import com.example.usuario.asistenciaprofesorv1.modelo.VentanaPrincipal;
 import com.example.usuario.asistenciaprofesorv1.modelo.VentanaProfesor;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -102,7 +103,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Intent i=new Intent(getApplicationContext(),VentanaAdmin.class);
                             startActivity(i);
                         }else{
-                            Intent i=new Intent(getApplicationContext(), VentanaProfesor.class);
+                            Intent i=new Intent(getApplicationContext(), VentanaGuardias.class);
+                            i.putExtra("Usuario",usuario);
                             startActivity(i);
                         }
                     }else{

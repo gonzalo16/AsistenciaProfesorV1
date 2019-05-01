@@ -5,15 +5,21 @@ import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.example.usuario.asistenciaprofesorv1.R;
+import com.example.usuario.asistenciaprofesorv1.adaptadores.AulasSpinAdapter;
+import com.example.usuario.asistenciaprofesorv1.adaptadores.ProfesorSpinAdapter;
 import com.example.usuario.asistenciaprofesorv1.entidades.Aulas;
+import com.example.usuario.asistenciaprofesorv1.entidades.Guardia;
 import com.example.usuario.asistenciaprofesorv1.entidades.Usuario;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
@@ -24,19 +30,32 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.UUID;
 
 public class VentanaAddGuardia extends AppCompatActivity implements View.OnClickListener{
 
+    /*
+    Diseño
+     */
     private Toolbar toolbar;
     private Button botonHoraInicio,botonHoraFin,botonAceptar;
     private Spinner spinnerProf,spinnerAula;
     private EditText editTextHInicio,editTextHFin;
     private Calendar calendar;
+
+    /*
+    Base de datos
+     */
     private TimePickerDialog timePickerDialog;
     private DatabaseReference databaseReference;
     private FirebaseDatabase firebaseDatabase;
     private ArrayList<Usuario> profesores;
     private ArrayList<Aulas> aulas;
+    private Usuario usuario;
+    private Aulas aula;
+    private Guardia guardia;
+    private int horainicio,minutoinicio,horafin,minutofin;
+    private String ampm;
 
 
     @Override
@@ -63,9 +82,37 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
 
         botonHoraInicio.setOnClickListener(this);
         botonHoraFin.setOnClickListener(this);
+        botonAceptar.setOnClickListener(this);
         cargarDatos();
 
+
+        spinnerAula.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                aula=(Aulas)adapterView.getItemAtPosition(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        spinnerProf.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                usuario=(Usuario)adapterView.getItemAtPosition(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
+
+
+
 
     private void cargarDatos(){
         FirebaseApp.initializeApp(this);
@@ -85,7 +132,7 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
                     if(u.getPerfil().equals("Profesor")){
                         profesores.add(u);
                         nomProfesores.add(u.getNombre());
-                        spinnerProf.setAdapter(new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_spinner_item,nomProfesores));
+                        spinnerProf.setAdapter(new ProfesorSpinAdapter(getApplicationContext(),profesores));
                     }
                 }
             }
@@ -106,7 +153,7 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
                     Aulas aula=dataSnapshot1.getValue(Aulas.class);
                     aulas.add(aula);
                     nomAulas.add(aula.getNombre());
-                    spinnerAula.setAdapter(new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_spinner_item,nomAulas));
+                    spinnerAula.setAdapter(new AulasSpinAdapter(getApplicationContext(),aulas));
                 }
             }
 
@@ -118,38 +165,69 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
 
     }
 
+    private void registrarGuardia(){
+
+        if(TextUtils.isEmpty(editTextHInicio.getText().toString())||TextUtils.isEmpty(editTextHFin.getText().toString())||usuario==null||aula==null){
+            Toast.makeText(getApplicationContext(),"Selecciona los datos correspondientes",Toast.LENGTH_LONG).show();
+        }else{
+            guardia=new Guardia();
+            guardia.setAulas(aula);
+            guardia.setUsuario(usuario);
+            guardia.setHorainicio(horainicio);
+            guardia.setMinutoinicio(minutoinicio);
+            guardia.setHorafin(horafin);
+            guardia.setMinutofin(minutofin);
+            String uid=UUID.randomUUID().toString();
+            guardia.setUid(uid);
+            databaseReference.child("Guardia").child(uid).setValue(guardia);
+            Toast.makeText(getApplicationContext(),"Guardia asignada correctamente",Toast.LENGTH_LONG).show();
+            finish();
+        }
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btnHoraInicio:
                 calendar=Calendar.getInstance();
-               int hora=calendar.get(Calendar.HOUR_OF_DAY);
-               int minutos=calendar.get(Calendar.MINUTE);
+                //horainicio=calendar.get(Calendar.HOUR_OF_DAY);
+                //minutoinicio=calendar.get(Calendar.MINUTE);
 
                timePickerDialog=new TimePickerDialog(this,R.style.TimerStyle, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+                        if(hour>=12){
+                            ampm="PM";
+                        }else{
+                            ampm="AM";
+                        }
                         editTextHInicio.setText(hour+": "+minute);
+                        horainicio=hour;
+                        minutoinicio=minute;
                     }
-                },hora,minutos,false);
+                },horainicio,minutoinicio,false);
 
 
                 timePickerDialog.show();
                 break;
             case R.id.btnHoraFin:
                 calendar=Calendar.getInstance();
-                int horafin=calendar.get(Calendar.HOUR_OF_DAY);
-                int minutosfin=calendar.get(Calendar.MINUTE);
+                 //horafin=calendar.get(Calendar.HOUR_OF_DAY);
+                 //minutofin=calendar.get(Calendar.MINUTE);
 
                 timePickerDialog=new TimePickerDialog(this,R.style.TimerStyle, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
                         editTextHFin.setText(hour+": "+minute);
+                        horafin=hour;
+                        minutofin=minute;
                     }
-                },horafin,minutosfin,false);
+                },horafin,minutofin,false);
                 timePickerDialog.show();
                 break;
             case R.id.btnRegistrar:
+                registrarGuardia();
+                break;
 
         }
     }
