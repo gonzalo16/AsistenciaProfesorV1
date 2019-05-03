@@ -21,6 +21,8 @@ import com.example.usuario.asistenciaprofesorv1.adaptadores.ProfesorSpinAdapter;
 import com.example.usuario.asistenciaprofesorv1.entidades.Aulas;
 import com.example.usuario.asistenciaprofesorv1.entidades.Guardia;
 import com.example.usuario.asistenciaprofesorv1.entidades.Usuario;
+import com.example.usuario.asistenciaprofesorv1.notificaciones.APIService;
+import com.example.usuario.asistenciaprofesorv1.notificaciones.Client;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -55,6 +57,7 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
     private Aulas aula;
     private Guardia guardia;
     private int horainicio,minutoinicio,horafin,minutofin;
+    private APIService apiService;
     private String ampm;
 
 
@@ -78,6 +81,7 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
         editTextHFin=findViewById(R.id.textoHoraFin);
         profesores=new ArrayList<Usuario>();
         aulas=new ArrayList<Aulas>();
+        apiService= Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
 
 
         botonHoraInicio.setOnClickListener(this);
@@ -165,6 +169,11 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
 
     }
 
+    private void sendNotification(String receiver,String username,String message){
+        DatabaseReference tokens=FirebaseDatabase.getInstance().getReference("Tokens");
+
+    }
+
     private void registrarGuardia(){
 
         if(TextUtils.isEmpty(editTextHInicio.getText().toString())||TextUtils.isEmpty(editTextHFin.getText().toString())||usuario==null||aula==null){
@@ -181,6 +190,9 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
             guardia.setUid(uid);
             databaseReference.child("Guardia").child(uid).setValue(guardia);
             Toast.makeText(getApplicationContext(),"Guardia asignada correctamente",Toast.LENGTH_LONG).show();
+
+            databaseReference=FirebaseDatabase.getInstance().getReference("Usuario").child(uid);
+
             finish();
         }
     }
