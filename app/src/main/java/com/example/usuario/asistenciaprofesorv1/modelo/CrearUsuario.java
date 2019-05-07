@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.usuario.asistenciaprofesorv1.R;
+import com.example.usuario.asistenciaprofesorv1.entidades.Asistencia;
 import com.example.usuario.asistenciaprofesorv1.entidades.Profesor;
 import com.example.usuario.asistenciaprofesorv1.entidades.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -67,6 +68,7 @@ public class CrearUsuario extends AppCompatActivity implements View.OnClickListe
                     if(task.isSuccessful()){
 
                         Usuario u=new Usuario();
+                        Asistencia asistencia=new Asistencia();
                         u.setNombre(nombre);
                         u.setApellido(apellido);
                         u.setEmail(email);
@@ -76,10 +78,15 @@ public class CrearUsuario extends AppCompatActivity implements View.OnClickListe
                         u.setPassword(password);
 
                         //Creamos un nodo Usuario
+                        asistencia.setUsuario(u);
+                        asistencia.setUid(UUID.randomUUID().toString());
                         databaseReference.child("Usuario").child(nombre).setValue(u);
+                        databaseReference.child("Asistencia").child(asistencia.getUid()).setValue(asistencia);
+                        //DatabaseReference database=firebaseDatabase.getReference();
+                        //database.child("Asistencia").setValue(asistencia);
+
                         Toast.makeText(getApplicationContext(),"Se ha registrado correctamente",Toast.LENGTH_LONG).show();
                         finish();
-
 
                     }else{
                         if(task.getException() instanceof FirebaseAuthUserCollisionException){

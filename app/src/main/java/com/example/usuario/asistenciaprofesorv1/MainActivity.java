@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Intent i=new Intent(getApplicationContext(),VentanaAdmin.class);
                             startActivity(i);
                         }else{
-                            Intent i=new Intent(getApplicationContext(), VentanaGuardias.class);
+                            Intent i=new Intent(getApplicationContext(), VentanaProfesor.class);
                             i.putExtra("Usuario",usuario);
                             startActivity(i);
                         }

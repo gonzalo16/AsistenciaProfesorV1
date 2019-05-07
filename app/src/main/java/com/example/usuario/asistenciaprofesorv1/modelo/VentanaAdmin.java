@@ -34,9 +34,14 @@ public class VentanaAdmin extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         administracionArrayList=new ArrayList<Administracion>();
+        generarDatos();
+
+    }
+
+    private void generarDatos(){
         administracionArrayList.add(new Administracion("Guardias",R.drawable.guardias));
         administracionArrayList.add(new Administracion("Profesores",R.drawable.profesores));
-        adminAdapter=new AdminAdapter(getApplicationContext(),administracionArrayList,"Admin");
+        adminAdapter=new AdminAdapter(getApplicationContext(),administracionArrayList,"Admin",null);
         recyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
         recyclerView.setAdapter(adminAdapter);
     }
