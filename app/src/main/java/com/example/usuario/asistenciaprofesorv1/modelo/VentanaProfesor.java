@@ -20,10 +20,14 @@ import android.widget.Toast;
 import com.example.usuario.asistenciaprofesorv1.R;
 import com.example.usuario.asistenciaprofesorv1.adaptadores.AdminAdapter;
 import com.example.usuario.asistenciaprofesorv1.entidades.Asistencia;
+import com.example.usuario.asistenciaprofesorv1.entidades.Guardia;
 import com.example.usuario.asistenciaprofesorv1.entidades.Usuario;
 import com.example.usuario.asistenciaprofesorv1.utilidades.Administracion;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -48,6 +52,10 @@ public class VentanaProfesor extends AppCompatActivity {
 
     public static float distancia=0;
 
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference databaseReference;
+    private int guardiasRecibidas=0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +68,9 @@ public class VentanaProfesor extends AppCompatActivity {
         toolbar.setTitle("Administracion");
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
+
+        firebaseDatabase=FirebaseDatabase.getInstance();
+        databaseReference=firebaseDatabase.getReference();
 
 
 
@@ -84,9 +95,28 @@ public class VentanaProfesor extends AppCompatActivity {
 
         administracionArrayList=new ArrayList<Administracion>();
 
+        obtenerGuardias();
         generarDatos();
         activarGPS();
     }
+
+    private void obtenerGuardias(){
+        databaseReference.child("Guardia").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                 Guardia guardia=dataSnapshot.getValue(Guardia.class);
+                 if(guardia.getUsuario().getUid().equals(usuario.getUid())){
+                     guardiasRecibidas++;
+                 }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 
     private void generarDatos(){
         administracionArrayList.add(new Administracion("Guardias",R.drawable.guardias));
@@ -95,6 +125,7 @@ public class VentanaProfesor extends AppCompatActivity {
         administracionArrayList.add(new Administracion("Salir",R.drawable.salir));
 
         adapter=new AdminAdapter(getApplicationContext(),administracionArrayList,"Profesor",usuario);
+        adapter.setGuardiasRecibidas(guardiasRecibidas);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         recyclerView.setAdapter(adapter);
     }

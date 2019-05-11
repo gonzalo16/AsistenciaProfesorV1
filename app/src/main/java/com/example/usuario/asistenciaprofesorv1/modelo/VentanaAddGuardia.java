@@ -169,10 +169,6 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
 
     }
 
-    private void sendNotification(String receiver,String username,String message){
-        DatabaseReference tokens=FirebaseDatabase.getInstance().getReference("Tokens");
-
-    }
 
     private void registrarGuardia(){
 
@@ -188,7 +184,8 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
             guardia.setMinutofin(minutofin);
             String uid=UUID.randomUUID().toString();
             guardia.setUid(uid);
-            databaseReference.child("Guardia").child(uid).setValue(guardia);
+            DatabaseReference dbGuardia=firebaseDatabase.getReference();
+            dbGuardia.child("Guardia").child(guardia.getUsuario().getUid()).setValue(guardia);
             Toast.makeText(getApplicationContext(),"Guardia asignada correctamente",Toast.LENGTH_LONG).show();
 
             databaseReference=FirebaseDatabase.getInstance().getReference("Usuario").child(uid);

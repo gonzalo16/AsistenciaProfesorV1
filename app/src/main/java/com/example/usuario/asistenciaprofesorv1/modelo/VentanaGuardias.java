@@ -53,7 +53,7 @@ public class VentanaGuardias extends AppCompatActivity {
     private DatabaseReference databaseReference;
 
     private final static int NOTIFICATION_ID=0;
-    private boolean tieneGuardias=false;
+    private int guardiasRecibidas=0;
 
 
     @Override
@@ -106,18 +106,12 @@ public class VentanaGuardias extends AppCompatActivity {
                     }
                 }
 
-                if(guardias.size()>0){
                     adapter=new GuardiaAdapter(getApplicationContext(),guardias);
                     recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.VERTICAL,false));
                     recyclerView.setAdapter(adapter);
-                    if(tieneGuardias==true){
-                        mostrarNotification();
+                    guardiasRecibidas++;
 
-                    }
-                    tieneGuardias=true;
-                }else{
-                    tieneGuardias=true;
-                }
+
             }
 
             @Override
@@ -125,6 +119,5 @@ public class VentanaGuardias extends AppCompatActivity {
 
             }
         });
-
     }
 }
