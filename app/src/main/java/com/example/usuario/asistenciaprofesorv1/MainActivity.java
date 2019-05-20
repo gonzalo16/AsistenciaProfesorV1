@@ -2,6 +2,7 @@ package com.example.usuario.asistenciaprofesorv1;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.usuario.asistenciaprofesorv1.entidades.Usuario;
@@ -17,6 +19,7 @@ import com.example.usuario.asistenciaprofesorv1.modelo.VentanaAdmin;
 import com.example.usuario.asistenciaprofesorv1.modelo.VentanaGuardias;
 import com.example.usuario.asistenciaprofesorv1.modelo.VentanaPrincipal;
 import com.example.usuario.asistenciaprofesorv1.modelo.VentanaProfesor;
+import com.example.usuario.asistenciaprofesorv1.temporizador.Temporizador;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -29,6 +32,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.util.Locale;
 
 
 /**
@@ -46,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnLogin,buttonCreate;
     private EditText editTextemail,editTextemailpassword;
     private ProgressDialog progressDialog;
-
 
     /*
     Objetos de firebase
@@ -69,7 +73,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private String email,password;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,7 +85,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonCreate=findViewById(R.id.btnCreate);
         editTextemail=findViewById(R.id.etEmail);
         editTextemailpassword=findViewById(R.id.etPass);
-
 
         /*
         Inicializacion de objetos
@@ -100,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnLogin.setOnClickListener(this);
 
     }
+
 
     /*
     Este metodo se utiliza para obtener de la base de datos el usuario que se quiere loguear, recorre la base de datos
@@ -141,9 +144,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         email=editTextemail.getText().toString().trim();
         password=editTextemailpassword.getText().toString().trim();
 
-        if(TextUtils.isEmpty(email)||TextUtils.isEmpty(password)){
+        /*if(TextUtils.isEmpty(email)||TextUtils.isEmpty(password)){
             Toast.makeText(getApplicationContext(),"Campos vacíos",Toast.LENGTH_LONG).show();
-        }else{
+        }else{*/
 
             obtenerUser();
             progressDialog.setMessage("Iniciando sesion...");
@@ -173,15 +176,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         });
 
-
-
                     }else{
                         Toast.makeText(getApplicationContext(),"El correo o la contraseña son incorrectos",Toast.LENGTH_LONG).show();
                     }
                    progressDialog.dismiss();
                 }
             });
-        }
+        //}
     }
 
     @Override

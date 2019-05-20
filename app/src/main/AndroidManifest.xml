@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
     <uses-feature android:name="android.hardware.location.gps"></uses-feature>
+    <uses-permission android:name="android.permission.VIBRATE" />
 
 
     <application
@@ -40,6 +41,8 @@
         <activity android:name=".modelo.VentanaAdmin" />
         <activity android:name=".modelo.VentanaAddGuardia" />
         <activity android:name=".modelo.VentanaGuardias"></activity>
+
+        <receiver android:name=".temporizador.AlertReceiver"></receiver>
     </application>
 
 </manifest>

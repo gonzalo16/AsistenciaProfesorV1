@@ -39,6 +39,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class VentanaGuardias extends AppCompatActivity {
 
@@ -51,6 +52,8 @@ public class VentanaGuardias extends AppCompatActivity {
     private FirebaseUser fuser;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
+
+    private ArrayList<Long> distanciaHoras;
 
     private final static int NOTIFICATION_ID=0;
     private int guardiasRecibidas=0;
@@ -77,8 +80,18 @@ public class VentanaGuardias extends AppCompatActivity {
         databaseReference=firebaseDatabase.getReference();
         fuser= FirebaseAuth.getInstance().getCurrentUser();
         usuario=(Usuario)getIntent().getExtras().getSerializable("Usuario");
+        distanciaHoras=new ArrayList<Long>();
+
         obtenerGuardias();
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(adapter.getCountDownTimer()!=null){
+            adapter.getCountDownTimer().cancel();
+        }
     }
 
     private void mostrarNotification(){
@@ -92,7 +105,10 @@ public class VentanaGuardias extends AppCompatActivity {
         notificationManager.notify(NOTIFICATION_ID,builder.build());
     }
 
-
+    private long calcularHora(Date horaInicio,Date horaFin){
+        long milisegundos=horaInicio.getTime()-horaFin.getTime();
+        return milisegundos;
+    }
 
     private void obtenerGuardias(){
         databaseReference.child("Guardia").addValueEventListener(new ValueEventListener() {
@@ -101,16 +117,16 @@ public class VentanaGuardias extends AppCompatActivity {
                 guardias.clear();
                 for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
                     Guardia guardia=dataSnapshot1.getValue(Guardia.class);
-                    if(guardia.getUsuario().getUid().equals(usuario.getUid())){
+                    if(guardia.getUidUsuario().equals(usuario.getUid())){
                         guardias.add(guardia);
+                        distanciaHoras.add(calcularHora(guardia.getHoraInicio(),guardia.getHoraFin()));
                     }
                 }
 
-                    adapter=new GuardiaAdapter(getApplicationContext(),guardias);
+                    adapter=new GuardiaAdapter(VentanaGuardias.this,guardias,distanciaHoras,VentanaGuardias.this);
                     recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.VERTICAL,false));
                     recyclerView.setAdapter(adapter);
                     guardiasRecibidas++;
-
 
             }
 

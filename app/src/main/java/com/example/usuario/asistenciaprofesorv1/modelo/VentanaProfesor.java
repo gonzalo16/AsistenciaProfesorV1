@@ -16,13 +16,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
+import com.example.usuario.asistenciaprofesorv1.adaptadores.AdminAdapter;
 
 import com.example.usuario.asistenciaprofesorv1.R;
-import com.example.usuario.asistenciaprofesorv1.adaptadores.AdminAdapter;
 import com.example.usuario.asistenciaprofesorv1.entidades.Asistencia;
 import com.example.usuario.asistenciaprofesorv1.entidades.Guardia;
 import com.example.usuario.asistenciaprofesorv1.entidades.Usuario;
 import com.example.usuario.asistenciaprofesorv1.utilidades.Administracion;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -54,7 +56,10 @@ public class VentanaProfesor extends AppCompatActivity {
 
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
-    private int guardiasRecibidas=0;
+    public static int guardiasRecibidas=0;
+    private ArrayList<Guardia> guardias;
+    private boolean nuevaGuardia=false;
+    private int index=0;
 
 
     @Override
@@ -68,7 +73,9 @@ public class VentanaProfesor extends AppCompatActivity {
         toolbar.setTitle("Administracion");
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
+        guardias=new ArrayList<Guardia>();
 
+        FirebaseApp.initializeApp(this);
         firebaseDatabase=FirebaseDatabase.getInstance();
         databaseReference=firebaseDatabase.getReference();
 
@@ -95,8 +102,10 @@ public class VentanaProfesor extends AppCompatActivity {
 
         administracionArrayList=new ArrayList<Administracion>();
 
-        obtenerGuardias();
         generarDatos();
+        obtenerGuardias();
+
+        String test="asf";
         activarGPS();
     }
 
@@ -104,10 +113,29 @@ public class VentanaProfesor extends AppCompatActivity {
         databaseReference.child("Guardia").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                 Guardia guardia=dataSnapshot.getValue(Guardia.class);
-                 if(guardia.getUsuario().getUid().equals(usuario.getUid())){
-                     guardiasRecibidas++;
-                 }
+                guardias.clear();
+                if(nuevaGuardia==true){
+                    for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
+                        Guardia guardia=dataSnapshot1.getValue(Guardia.class);
+                        guardias.add(guardia);
+                    }
+
+                    Guardia ultimaGuardia=guardias.get(guardias.size()-1);
+                    if(ultimaGuardia.getUidUsuario().equals(usuario.getUid())){
+                        guardiasRecibidas++;
+                    }
+
+                    adapter.setGuardiasRecibidas(guardiasRecibidas);
+                    adapter.notifyDataSetChanged();
+
+
+                }else{
+                    for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
+                        Guardia guardia=dataSnapshot1.getValue(Guardia.class);
+                        guardias.add(guardia);
+                    }
+                    nuevaGuardia=true;
+                }
             }
 
             @Override
@@ -115,6 +143,7 @@ public class VentanaProfesor extends AppCompatActivity {
 
             }
         });
+
     }
 
 
@@ -161,9 +190,9 @@ public class VentanaProfesor extends AppCompatActivity {
                     distancia=location.distanceTo(locSanJose);
 
                     if(distancia<200){
-                        Toast.makeText(getApplicationContext(),"Estas en la zona",Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getApplicationContext(),"Estas en la zona",Toast.LENGTH_LONG).show();
                     }else{
-                        Toast.makeText(getApplicationContext(),"No estas en la zona",Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getApplicationContext(),"No estas en la zona",Toast.LENGTH_LONG).show();
                     }
                 }
 

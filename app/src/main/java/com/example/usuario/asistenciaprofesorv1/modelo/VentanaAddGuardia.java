@@ -30,8 +30,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 
 public class VentanaAddGuardia extends AppCompatActivity implements View.OnClickListener{
@@ -43,22 +45,29 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
     private Button botonHoraInicio,botonHoraFin,botonAceptar;
     private Spinner spinnerProf,spinnerAula;
     private EditText editTextHInicio,editTextHFin;
-    private Calendar calendar;
+    private Calendar calendarHoraInicio,calendarHoraFin;
 
     /*
     Base de datos
      */
     private TimePickerDialog timePickerDialog;
     private DatabaseReference databaseReference;
+    private DatabaseReference dbGuardia;
     private FirebaseDatabase firebaseDatabase;
+
+
     private ArrayList<Usuario> profesores;
     private ArrayList<Aulas> aulas;
     private Usuario usuario;
     private Aulas aula;
     private Guardia guardia;
     private int horainicio,minutoinicio,horafin,minutofin;
+    private Date horaInicio,horaFin;
+
+
     private APIService apiService;
     private String ampm;
+
 
 
     @Override
@@ -177,18 +186,16 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
         }else{
             guardia=new Guardia();
             guardia.setAulas(aula);
-            guardia.setUsuario(usuario);
-            guardia.setHorainicio(horainicio);
-            guardia.setMinutoinicio(minutoinicio);
-            guardia.setHorafin(horafin);
-            guardia.setMinutofin(minutofin);
+            guardia.setHoraInicio(horaInicio);
+            guardia.setHoraFin(horaFin);
+            guardia.setUidUsuario(usuario.getUid());
+            guardia.setNombreProfesor(usuario.getNombre());
             String uid=UUID.randomUUID().toString();
             guardia.setUid(uid);
-            DatabaseReference dbGuardia=firebaseDatabase.getReference();
-            dbGuardia.child("Guardia").child(guardia.getUsuario().getUid()).setValue(guardia);
-            Toast.makeText(getApplicationContext(),"Guardia asignada correctamente",Toast.LENGTH_LONG).show();
+            dbGuardia=firebaseDatabase.getReference();
 
-            databaseReference=FirebaseDatabase.getInstance().getReference("Usuario").child(uid);
+            dbGuardia.child("Guardia").push().setValue(guardia);
+            Toast.makeText(getApplicationContext(),"Guardia asignada correctamente",Toast.LENGTH_LONG).show();
 
             finish();
         }
@@ -198,41 +205,69 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btnHoraInicio:
-                calendar=Calendar.getInstance();
-                //horainicio=calendar.get(Calendar.HOUR_OF_DAY);
-                //minutoinicio=calendar.get(Calendar.MINUTE);
-
+                calendarHoraInicio=Calendar.getInstance();
                timePickerDialog=new TimePickerDialog(this,R.style.TimerStyle, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-                        if(hour>=12){
-                            ampm="PM";
-                        }else{
-                            ampm="AM";
-                        }
-                        editTextHInicio.setText(hour+": "+minute);
-                        horainicio=hour;
-                        minutoinicio=minute;
+
+                        //if(hour>=8&&hour<=15){
+                            horaInicio=new Date();
+                            calendarHoraInicio.setTime(horaInicio);
+                            calendarHoraInicio.set(Calendar.HOUR_OF_DAY,hour);
+                            calendarHoraInicio.set(Calendar.MINUTE,minute);
+
+                            editTextHInicio.setText(hour+": "+minute);
+                            horainicio=hour;
+                            minutoinicio=minute;
+                            horaInicio=calendarHoraInicio.getTime();
+                            botonHoraFin.setEnabled(true);
+                        //}else{
+                           // Toast.makeText(getApplicationContext(),"Establece un horario entre las 8 y las 15 horas",Toast.LENGTH_LONG).show();
+                        //}
+
+
                     }
-                },horainicio,minutoinicio,false);
-
-
+                },horainicio,minutoinicio, android.text.format.DateFormat.is24HourFormat(getApplicationContext()));
                 timePickerDialog.show();
+
                 break;
             case R.id.btnHoraFin:
-                calendar=Calendar.getInstance();
-                 //horafin=calendar.get(Calendar.HOUR_OF_DAY);
-                 //minutofin=calendar.get(Calendar.MINUTE);
-
+                calendarHoraFin=Calendar.getInstance();
                 timePickerDialog=new TimePickerDialog(this,R.style.TimerStyle, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-                        editTextHFin.setText(hour+": "+minute);
-                        horafin=hour;
-                        minutofin=minute;
+
+                        //if(hour<horainicio){
+                           // Toast.makeText(getApplicationContext(), "Selecciona una hora mayor a la de entrada", Toast.LENGTH_SHORT).show();
+                        //}else{
+                            horaFin=new Date();
+                            calendarHoraFin.set(Calendar.HOUR_OF_DAY,hour);
+                            calendarHoraFin.set(Calendar.MINUTE,minute);
+                            editTextHFin.setText(hour+": "+minute);
+                            horafin=hour;
+                            minutofin=minute;
+                            horaFin=calendarHoraFin.getTime();
+                        //}
+                       /* if(hour>=8&&hour<=15){
+                            if(hour<horainicio){
+                                Toast.makeText(getApplicationContext(), "Selecciona una hora mayor a la de entrada", Toast.LENGTH_SHORT).show();
+                            }else{
+                                horaFin=new Date();
+                                calendarHoraFin.set(Calendar.HOUR_OF_DAY,hour);
+                                calendarHoraFin.set(Calendar.MINUTE,minute);
+                                editTextHFin.setText(hour+": "+minute);
+                                horafin=hour;
+                                minutofin=minute;
+                                horaFin=calendarHoraFin.getTime();
+                            }
+                        }else{
+                            Toast.makeText(getApplicationContext(),"Establece un horario entre las 8 y las 15 horas",Toast.LENGTH_LONG).show();
+                        }*/
+
                     }
-                },horafin,minutofin,false);
+                },horafin,minutofin, android.text.format.DateFormat.is24HourFormat(getApplicationContext()));
                 timePickerDialog.show();
+
                 break;
             case R.id.btnRegistrar:
                 registrarGuardia();
