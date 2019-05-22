@@ -90,8 +90,8 @@ public class VentanaProfesor extends AppCompatActivity {
          * Establecemos la localizacion el colegio
          */
         locSanJose=new Location("");
-        locSanJose.setLatitude(36.733296);
-        locSanJose.setLongitude(-4.415612);
+        locSanJose.setLatitude(36.717353);
+        locSanJose.setLongitude(-4.443025);
 
         //Iniciamos el servicio
         locationManager=(LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -105,8 +105,16 @@ public class VentanaProfesor extends AppCompatActivity {
         generarDatos();
         obtenerGuardias();
 
-        String test="asf";
-        activarGPS();
+        obtenerPermisos();
+        //activarGPS();
+
+    }
+
+    private void obtenerPermisos(){
+        //Solicitamos el permiso
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},REQUEST_ACCES_FINE);
+        }
     }
 
     private void obtenerGuardias(){
@@ -149,7 +157,7 @@ public class VentanaProfesor extends AppCompatActivity {
 
     private void generarDatos(){
         administracionArrayList.add(new Administracion("Guardias",R.drawable.guardias));
-        administracionArrayList.add(new Administracion("Picar",R.drawable.ic_pan_tool_black_24dp));
+        administracionArrayList.add(new Administracion("Picar",R.drawable.ic_touch_app_black_24dp));
         administracionArrayList.add(new Administracion("Agenda",R.drawable.agenda));
         administracionArrayList.add(new Administracion("Salir",R.drawable.salir));
 
@@ -178,11 +186,6 @@ public class VentanaProfesor extends AppCompatActivity {
 
     private void activarGPS(){
 
-        //Solicitamos el permiso
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},REQUEST_ACCES_FINE);
-        }
-
         if(REQUEST_ACCES_FINE==PackageManager.PERMISSION_GRANTED){
             locationListener=new LocationListener() {
                 @Override
@@ -190,9 +193,9 @@ public class VentanaProfesor extends AppCompatActivity {
                     distancia=location.distanceTo(locSanJose);
 
                     if(distancia<200){
-                        //Toast.makeText(getApplicationContext(),"Estas en la zona",Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(),"Estas en la zona",Toast.LENGTH_LONG).show();
                     }else{
-                        //Toast.makeText(getApplicationContext(),"No estas en la zona",Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(),"No estas en la zona",Toast.LENGTH_LONG).show();
                     }
                 }
 

@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">AsistenciaProfesorV1</string>
+    <string name="hora_inicio">Hora inicio</string>
+    <string name="hora_fin">Hora fin</string>
+    <string name="registrar_guardia">Registrar guardia</string>
+    <string name="title_activity_maps">Map</string>
 </resources>

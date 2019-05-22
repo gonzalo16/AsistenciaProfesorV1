@@ -2,6 +2,7 @@ package com.example.usuario.asistenciaprofesorv1.modelo;
 
 import android.app.TimePickerDialog;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -24,6 +25,7 @@ import com.example.usuario.asistenciaprofesorv1.entidades.Usuario;
 import com.example.usuario.asistenciaprofesorv1.notificaciones.APIService;
 import com.example.usuario.asistenciaprofesorv1.notificaciones.Client;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -53,11 +55,14 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
     private TimePickerDialog timePickerDialog;
     private DatabaseReference databaseReference;
     private DatabaseReference dbGuardia;
+    private DatabaseReference guardiasReference;
     private FirebaseDatabase firebaseDatabase;
 
 
     private ArrayList<Usuario> profesores;
     private ArrayList<Aulas> aulas;
+    private ArrayList<Guardia> guardias;
+
     private Usuario usuario;
     private Aulas aula;
     private Guardia guardia;
@@ -66,8 +71,6 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
 
 
     private APIService apiService;
-    private String ampm;
-
 
 
     @Override
@@ -85,12 +88,17 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
         botonAceptar=findViewById(R.id.btnRegistrar);
         spinnerProf=findViewById(R.id.spinProfesor);
         spinnerAula=findViewById(R.id.spinAula);
-
         editTextHInicio=findViewById(R.id.textoHoraInicio);
         editTextHFin=findViewById(R.id.textoHoraFin);
+
+
         profesores=new ArrayList<Usuario>();
         aulas=new ArrayList<Aulas>();
+        guardias=new ArrayList<Guardia>();
+
         apiService= Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
+        FirebaseApp.initializeApp(this);
+        firebaseDatabase=FirebaseDatabase.getInstance();
 
 
         botonHoraInicio.setOnClickListener(this);
@@ -115,6 +123,7 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 usuario=(Usuario)adapterView.getItemAtPosition(position);
+                obtenerGuardias();
             }
 
             @Override
@@ -122,14 +131,14 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
 
             }
         });
+
     }
 
 
 
 
     private void cargarDatos(){
-        FirebaseApp.initializeApp(this);
-        firebaseDatabase=FirebaseDatabase.getInstance();
+
         databaseReference=firebaseDatabase.getReference();
 
         final ArrayList<String> nomProfesores=new ArrayList<String>();
@@ -175,15 +184,39 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
 
             }
         });
-
     }
+
+    private void obtenerGuardias(){
+        guardiasReference=firebaseDatabase.getReference();
+        guardiasReference.child("Guardia").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                guardias.clear();
+                for(DataSnapshot ds: dataSnapshot.getChildren()){
+                    Guardia g=ds.getValue(Guardia.class);
+                    if(g.getUidUsuario().equals(usuario.getUid())){
+                        guardias.add(g);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 
 
     private void registrarGuardia(){
 
+        boolean guardiaEnHora=false;
+
         if(TextUtils.isEmpty(editTextHInicio.getText().toString())||TextUtils.isEmpty(editTextHFin.getText().toString())||usuario==null||aula==null){
             Toast.makeText(getApplicationContext(),"Selecciona los datos correspondientes",Toast.LENGTH_LONG).show();
         }else{
+
             guardia=new Guardia();
             guardia.setAulas(aula);
             guardia.setHoraInicio(horaInicio);
@@ -192,12 +225,36 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
             guardia.setNombreProfesor(usuario.getNombre());
             String uid=UUID.randomUUID().toString();
             guardia.setUid(uid);
-            dbGuardia=firebaseDatabase.getReference();
 
+            int horaInicial=guardia.getHoraInicio().getHours();
+
+            for(int i=0;i<guardias.size();i++){
+                if(horaInicial==guardias.get(i).getHoraInicio().getHours()){
+                    guardiaEnHora=true;
+                }
+            }
+
+            dbGuardia=firebaseDatabase.getReference();
             dbGuardia.child("Guardia").push().setValue(guardia);
             Toast.makeText(getApplicationContext(),"Guardia asignada correctamente",Toast.LENGTH_LONG).show();
+           /* if(guardiaEnHora==false){
+                if(horafin<=horainicio){
+                    Toast.makeText(getApplicationContext(),"Selecciona una hora mayor que la de inicio",Toast.LENGTH_LONG).show();
+                }else{
+                    dbGuardia=firebaseDatabase.getReference();
+                    dbGuardia.child("Guardia").push().setValue(guardia);
+                    Toast.makeText(getApplicationContext(),"Guardia asignada correctamente",Toast.LENGTH_LONG).show();
 
-            finish();
+                    finish();
+                }
+                dbGuardia=firebaseDatabase.getReference();
+                dbGuardia.child("Guardia").push().setValue(guardia);
+                Toast.makeText(getApplicationContext(),"Guardia asignada correctamente",Toast.LENGTH_LONG).show();
+
+                finish();
+            }else{
+                Toast.makeText(getApplicationContext(),"Ya hay una guardia asignada a esa hora",Toast.LENGTH_LONG).show();
+            }*/
         }
     }
 
@@ -210,7 +267,18 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
 
-                        //if(hour>=8&&hour<=15){
+                        horaInicio=new Date();
+                        calendarHoraInicio.setTime(horaInicio);
+                        calendarHoraInicio.set(Calendar.HOUR_OF_DAY,hour);
+                        calendarHoraInicio.set(Calendar.MINUTE,minute);
+
+                        editTextHInicio.setText(hour+": "+minute);
+                        horainicio=hour;
+                        minutoinicio=minute;
+                        horaInicio=calendarHoraInicio.getTime();
+                        botonHoraFin.setEnabled(true);
+                        //Descomentar esto
+                        /*if(hour>=8&&hour<=14){
                             horaInicio=new Date();
                             calendarHoraInicio.setTime(horaInicio);
                             calendarHoraInicio.set(Calendar.HOUR_OF_DAY,hour);
@@ -221,11 +289,9 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
                             minutoinicio=minute;
                             horaInicio=calendarHoraInicio.getTime();
                             botonHoraFin.setEnabled(true);
-                        //}else{
-                           // Toast.makeText(getApplicationContext(),"Establece un horario entre las 8 y las 15 horas",Toast.LENGTH_LONG).show();
-                        //}
-
-
+                        }else{
+                            Toast.makeText(getApplicationContext(),"Establece un horario entre las 8 y las 15 horas",Toast.LENGTH_LONG).show();
+                        }*/
                     }
                 },horainicio,minutoinicio, android.text.format.DateFormat.is24HourFormat(getApplicationContext()));
                 timePickerDialog.show();
@@ -237,19 +303,16 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hour, int minute) {
 
-                        //if(hour<horainicio){
-                           // Toast.makeText(getApplicationContext(), "Selecciona una hora mayor a la de entrada", Toast.LENGTH_SHORT).show();
-                        //}else{
-                            horaFin=new Date();
-                            calendarHoraFin.set(Calendar.HOUR_OF_DAY,hour);
-                            calendarHoraFin.set(Calendar.MINUTE,minute);
-                            editTextHFin.setText(hour+": "+minute);
-                            horafin=hour;
-                            minutofin=minute;
-                            horaFin=calendarHoraFin.getTime();
-                        //}
-                       /* if(hour>=8&&hour<=15){
-                            if(hour<horainicio){
+                        horaFin=new Date();
+                        calendarHoraFin.set(Calendar.HOUR_OF_DAY,hour);
+                        calendarHoraFin.set(Calendar.MINUTE,minute);
+                        editTextHFin.setText(hour+": "+minute);
+                        horafin=hour;
+                        minutofin=minute;
+                        horaFin=calendarHoraFin.getTime();
+                        //Descomentar esto
+                        /*if(hour>=8&&hour<=15){
+                            if(hour<=horainicio){
                                 Toast.makeText(getApplicationContext(), "Selecciona una hora mayor a la de entrada", Toast.LENGTH_SHORT).show();
                             }else{
                                 horaFin=new Date();
@@ -263,7 +326,6 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
                         }else{
                             Toast.makeText(getApplicationContext(),"Establece un horario entre las 8 y las 15 horas",Toast.LENGTH_LONG).show();
                         }*/
-
                     }
                 },horafin,minutofin, android.text.format.DateFormat.is24HourFormat(getApplicationContext()));
                 timePickerDialog.show();

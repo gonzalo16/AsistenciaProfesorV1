@@ -6,4 +6,6 @@
 
     <color name="asignar">#3cda3c</color>
     <color name="borrar">#ef2222</color>
+    <color name="pendiente">#e7edda09</color>
+    <color name="textColor">#ffffff</color>
 </resources>

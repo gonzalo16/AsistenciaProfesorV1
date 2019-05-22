@@ -9,99 +9,112 @@
     tools:context=".modelo.VentanaAddGuardia">
 
     <include layout="@layout/toolbar"></include>
+
     <LinearLayout
-        android:layout_marginTop="5dp"
-        android:orientation="horizontal"
+        android:layout_marginTop="15dp"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
-            android:layout_weight="1"
-            android:layout_margin="5dp"
-            android:textSize="20sp"
-            android:text="Profesor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <Spinner
-            android:id="@+id/spinProfesor"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="Profesor"
+                android:textSize="20sp" />
+            <Spinner
+                android:id="@+id/spinProfesor"
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"></Spinner>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
-        </Spinner>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_marginTop="5dp"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
-        <TextView
-            android:layout_weight="1"
-            android:layout_margin="5dp"
-            android:textSize="20sp"
-            android:text="Aula"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <Spinner
-            android:id="@+id/spinAula"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
+            <TextView
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:textSize="20sp"
+                android:text="Aula"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <Spinner
+
+                android:id="@+id/spinAula"
+                android:layout_margin="5dp"
+                android:layout_width="180dp"
+                android:layout_height="wrap_content">
+            </Spinner>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
-        </Spinner>
-    </LinearLayout>
 
-    <LinearLayout
-        android:layout_marginTop="5dp"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+            <Button
+                android:text="@string/hora_inicio"
+                android:textColor="#ffffff"
+                android:background="@color/colorPrimary"
+                android:id="@+id/btnHoraInicio"
+                android:layout_margin="5dp"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content" />
+            <EditText
+                android:textAlignment="center"
+                android:id="@+id/textoHoraInicio"
+                android:enabled="false"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:textColor="#ffffff"
+                android:background="#bf3f51b5"
+                android:enabled="false"
+                android:id="@+id/btnHoraFin"
+                android:layout_margin="5dp"
+                android:text="@string/hora_fin"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content" />
+            <EditText
+                android:textAlignment="center"
+                android:id="@+id/textoHoraFin"
+                android:enabled="false"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
         <Button
-            android:id="@+id/btnHoraInicio"
-            android:layout_margin="5dp"
-            android:text="Hora inicio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <EditText
-            android:id="@+id/textoHoraInicio"
-            android:enabled="false"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
+            android:id="@+id/btnRegistrar"
+            android:textStyle="bold"
+            android:textColor="#ffffff"
+            android:background="@color/colorPrimary"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/registrar_guardia"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
-    <LinearLayout
-        android:layout_marginTop="5dp"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:enabled="false"
-            android:id="@+id/btnHoraFin"
-            android:layout_margin="5dp"
-            android:text="Hora fin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <EditText
-            android:id="@+id/textoHoraFin"
-            android:enabled="false"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/btnRegistrar"
-        android:textStyle="bold"
-        android:textColor="#ffffff"
-        android:background="@color/colorPrimary"
-        android:layout_margin="10dp"
-        android:text="Registrar guardia"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
 </LinearLayout>

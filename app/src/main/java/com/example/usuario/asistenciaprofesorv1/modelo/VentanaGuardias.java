@@ -86,14 +86,6 @@ public class VentanaGuardias extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(adapter.getCountDownTimer()!=null){
-            adapter.getCountDownTimer().cancel();
-        }
-    }
-
     private void mostrarNotification(){
 
         NotificationCompat.Builder builder=new NotificationCompat.Builder(getApplicationContext());
@@ -123,11 +115,10 @@ public class VentanaGuardias extends AppCompatActivity {
                     }
                 }
 
-                    adapter=new GuardiaAdapter(VentanaGuardias.this,guardias,distanciaHoras,VentanaGuardias.this);
-                    recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.VERTICAL,false));
-                    recyclerView.setAdapter(adapter);
-                    guardiasRecibidas++;
-
+                adapter=new GuardiaAdapter(VentanaGuardias.this,guardias,distanciaHoras,VentanaGuardias.this);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.VERTICAL,false));
+                recyclerView.setAdapter(adapter);
+                guardiasRecibidas++;
             }
 
             @Override
