@@ -2,20 +2,30 @@ package com.example.usuario.asistenciaprofesorv1.modelo;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
+
+import com.example.usuario.asistenciaprofesorv1.MapasFragment;
 import com.example.usuario.asistenciaprofesorv1.adaptadores.AdminAdapter;
 
 import com.example.usuario.asistenciaprofesorv1.R;
@@ -23,6 +33,8 @@ import com.example.usuario.asistenciaprofesorv1.entidades.Asistencia;
 import com.example.usuario.asistenciaprofesorv1.entidades.Guardia;
 import com.example.usuario.asistenciaprofesorv1.entidades.Usuario;
 import com.example.usuario.asistenciaprofesorv1.utilidades.Administracion;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -33,7 +45,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class VentanaProfesor extends AppCompatActivity {
+public class VentanaProfesor extends AppCompatActivity implements MapasFragment.OnFragmentInteractionListener{
 
     private Toolbar toolbar;
     private RecyclerView recyclerView;
@@ -51,7 +63,9 @@ public class VentanaProfesor extends AppCompatActivity {
     private LocationManager locationManager;
     private LocationListener locationListener;
     private final int REQUEST_ACCES_FINE=0;
+    private final int REQUEST_LOCATION=1;
 
+    private BottomNavigationView bottomNavigationView;
     public static float distancia=0;
 
     private FirebaseDatabase firebaseDatabase;
@@ -60,6 +74,7 @@ public class VentanaProfesor extends AppCompatActivity {
     private ArrayList<Guardia> guardias;
     private boolean nuevaGuardia=false;
     private int index=0;
+    public static boolean permiso=false;
 
 
     @Override
@@ -69,6 +84,26 @@ public class VentanaProfesor extends AppCompatActivity {
 
         recyclerView=findViewById(R.id.recyclerAdminProfe);
         toolbar=findViewById(R.id.toolbar);
+        bottomNavigationView=findViewById(R.id.navigationView);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.ubicacion:
+
+                        //Fragment fragmento=new MapasFragment();
+                        //getSupportFragmentManager().beginTransaction().replace(R.id.contenedor,fragmento).commit();
+
+
+                        /*MapsActivity fragment=new MapsActivity();
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.replace(R.id.contenedor,fragment);
+                        transaction.commit();*/
+                        break;
+                }
+                return false;
+            }
+        });
 
         toolbar.setTitle("Administracion");
         toolbar.setTitleTextColor(Color.WHITE);
@@ -89,9 +124,11 @@ public class VentanaProfesor extends AppCompatActivity {
         /**
          * Establecemos la localizacion el colegio
          */
+
+
         locSanJose=new Location("");
-        locSanJose.setLatitude(36.717353);
-        locSanJose.setLongitude(-4.443025);
+        locSanJose.setLatitude(36.733635);
+        locSanJose.setLongitude(-4.414539);
 
         //Iniciamos el servicio
         locationManager=(LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -103,19 +140,25 @@ public class VentanaProfesor extends AppCompatActivity {
         administracionArrayList=new ArrayList<Administracion>();
 
         generarDatos();
-        obtenerGuardias();
-
-        obtenerPermisos();
-        //activarGPS();
+        //obtenerGuardias();
+        checkPermission();
 
     }
 
-    private void obtenerPermisos(){
-        //Solicitamos el permiso
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},REQUEST_ACCES_FINE);
+
+    private boolean isServiceOk(){
+        int available= GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(VentanaProfesor.this);
+
+        if(available== ConnectionResult.SUCCESS){
+            Log.d("Map","Servicio OKEY");
+            return true;
+        }else if(GoogleApiAvailability.getInstance().isUserResolvableError(available)){
+            Log.d("Map","Servicio OKEY:error ");
         }
+        return false;
     }
+
+
 
     private void obtenerGuardias(){
         databaseReference.child("Guardia").addValueEventListener(new ValueEventListener() {
@@ -151,7 +194,6 @@ public class VentanaProfesor extends AppCompatActivity {
 
             }
         });
-
     }
 
 
@@ -171,6 +213,7 @@ public class VentanaProfesor extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
+
         if(ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED){
             return;
         }else{
@@ -184,15 +227,70 @@ public class VentanaProfesor extends AppCompatActivity {
         activarGPS();
     }
 
-    private void activarGPS(){
 
-        if(REQUEST_ACCES_FINE==PackageManager.PERMISSION_GRANTED){
+    private void checkPermission(){
+        if(ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED){
+            Toast.makeText(this,"Ya tienes garantizados los permisos",Toast.LENGTH_LONG);
+            permiso=true;
+        }else{
+            requestLocationPermission();
+        }
+    }
+
+    public void requestLocationPermission(){
+        if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_FINE_LOCATION)){
+            new AlertDialog.Builder(this).setTitle("Permiso denegado").setMessage("Se necesitan permisos de ubicacion").setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    ActivityCompat.requestPermissions(VentanaProfesor.this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},REQUEST_LOCATION);
+                }
+            })
+            .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            })
+            .create().show();
+        }else{
+            ActivityCompat.requestPermissions(VentanaProfesor.this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},REQUEST_LOCATION);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode==REQUEST_LOCATION){
+            if(grantResults.length>0&&  grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this,"Permisos garantizados",Toast.LENGTH_LONG).show();
+                permiso=true;
+                activarGPS();
+            }else{
+                Toast.makeText(this,"Permisos denegados",Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private void activarGPS(){
+        int permissionCheck= ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION);
+
+        //Si el permiso esta denegado, si no tenemos permiso
+        if(permissionCheck==PackageManager.PERMISSION_DENIED){
+
+            //Preguntamos
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_FINE_LOCATION)){
+
+            }else{
+                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
+            }
+        }
+
+        if(permissionCheck==PackageManager.PERMISSION_GRANTED){
             locationListener=new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
                     distancia=location.distanceTo(locSanJose);
-
-                    if(distancia<200){
+                    String test="asfaw";
+                    if(distancia<10){
                         Toast.makeText(getApplicationContext(),"Estas en la zona",Toast.LENGTH_LONG).show();
                     }else{
                         Toast.makeText(getApplicationContext(),"No estas en la zona",Toast.LENGTH_LONG).show();
@@ -216,5 +314,10 @@ public class VentanaProfesor extends AppCompatActivity {
             };
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0,locationListener);
         }
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }

@@ -10,7 +10,6 @@
 
     <include layout="@layout/toolbar"></include>
 
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerGuardias"
         android:layout_margin="5dp"

@@ -210,12 +210,13 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
 
 
     private void registrarGuardia(){
-
         boolean guardiaEnHora=false;
 
         if(TextUtils.isEmpty(editTextHInicio.getText().toString())||TextUtils.isEmpty(editTextHFin.getText().toString())||usuario==null||aula==null){
             Toast.makeText(getApplicationContext(),"Selecciona los datos correspondientes",Toast.LENGTH_LONG).show();
         }else{
+            dbGuardia=firebaseDatabase.getReference();
+            String mGroupId = dbGuardia.push().getKey();
 
             guardia=new Guardia();
             guardia.setAulas(aula);
@@ -224,7 +225,7 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
             guardia.setUidUsuario(usuario.getUid());
             guardia.setNombreProfesor(usuario.getNombre());
             String uid=UUID.randomUUID().toString();
-            guardia.setUid(uid);
+            guardia.setUid(mGroupId);
 
             int horaInicial=guardia.getHoraInicio().getHours();
 
@@ -234,8 +235,9 @@ public class VentanaAddGuardia extends AppCompatActivity implements View.OnClick
                 }
             }
 
-            dbGuardia=firebaseDatabase.getReference();
-            dbGuardia.child("Guardia").push().setValue(guardia);
+
+            dbGuardia.child("Guardia").child(mGroupId).setValue(guardia);
+
             Toast.makeText(getApplicationContext(),"Guardia asignada correctamente",Toast.LENGTH_LONG).show();
            /* if(guardiaEnHora==false){
                 if(horafin<=horainicio){
