@@ -71,7 +71,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/D:/Archivos%20de%20programa/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_touch_app_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/D:/Archivos%20de%20programa/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/maps/ic_my_location_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -81,9 +81,9 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="0f1991" />
+                            <entry key="color" value="020203" />
                             <entry key="opacityPercent" value="93" />
-                            <entry key="outputName" value="ic_touch_app_black_24dp" />
+                            <entry key="outputName" value="ic_my_location_black_24dp" />
                             <entry key="sourceFile" value="C:\Users\Usuario" />
                           </map>
                         </option>

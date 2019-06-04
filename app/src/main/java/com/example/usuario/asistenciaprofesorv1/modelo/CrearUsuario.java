@@ -1,9 +1,13 @@
 package com.example.usuario.asistenciaprofesorv1.modelo;
 
+import android.app.ProgressDialog;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,7 +15,9 @@ import android.widget.Toast;
 
 import com.example.usuario.asistenciaprofesorv1.R;
 import com.example.usuario.asistenciaprofesorv1.entidades.Asistencia;
+import com.example.usuario.asistenciaprofesorv1.entidades.Localizacion;
 import com.example.usuario.asistenciaprofesorv1.entidades.Usuario;
+import com.example.usuario.asistenciaprofesorv1.utilidades.FirebaseHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
@@ -19,8 +25,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.UUID;
@@ -37,11 +41,15 @@ public class CrearUsuario extends AppCompatActivity implements View.OnClickListe
      */
     private EditText editTextNombre,editTextApellido,editTextNick,editTextEmail,editTextPassword;
     private Button botonCrear;
+    private ProgressDialog progressDialog;
 
+    private String nombre,email,password,nick,apellido;
 
-    private FirebaseAuth autentication;
-    private FirebaseDatabase firebaseDatabase;
-    private DatabaseReference databaseReference;
+    private FirebaseAuth auth;
+    private FirebaseUser currentUser;
+    private FirebaseHelper firebaseHelper;
+
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,57 +64,75 @@ public class CrearUsuario extends AppCompatActivity implements View.OnClickListe
         botonCrear=findViewById(R.id.btnUnirse);
         botonCrear.setOnClickListener(this);
 
+        toolbar=findViewById(R.id.toolbar);
+        toolbar.setTitle("Creacion de cuenta");
+        toolbar.setTitleTextColor(Color.WHITE);
+        setSupportActionBar(toolbar);
+
         FirebaseApp.initializeApp(this);
-        autentication=FirebaseAuth.getInstance();
-        firebaseDatabase=FirebaseDatabase.getInstance();
-        databaseReference=firebaseDatabase.getReference();
+        firebaseHelper=new FirebaseHelper();
+
+        auth=FirebaseAuth.getInstance();
+        currentUser=FirebaseAuth.getInstance().getCurrentUser();
+        progressDialog=new ProgressDialog(this);
 
     }
 
     private void registrar(){
-        final String nombre=editTextNombre.getText().toString();
-        final String apellido=editTextApellido.getText().toString();
-        final String nick=editTextNick.getText().toString();
-        final String email=editTextEmail.getText().toString();
-        final String password=editTextPassword.getText().toString();
+        nombre=editTextNombre.getText().toString();
+        apellido=editTextApellido.getText().toString();
+        nick=editTextNick.getText().toString();
+        email=editTextEmail.getText().toString();
+        password=editTextPassword.getText().toString();
 
         if(TextUtils.isEmpty(nombre)||TextUtils.isEmpty(apellido)||TextUtils.isEmpty(nick)||TextUtils.isEmpty(email)||TextUtils.isEmpty(password)){
             Toast.makeText(getApplicationContext(),"Campos vacios",Toast.LENGTH_LONG).show();
         }else{
-            autentication.createUserWithEmailAndPassword(email,password).addOnCompleteListener(CrearUsuario.this, new OnCompleteListener<AuthResult>() {
+            progressDialog.setMessage("Creando cuenta...");
+            progressDialog.show();
+            auth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
+                        Log.d("CreateUser", "createUserWithEmail:success");
 
-                        FirebaseUser currentUser=FirebaseAuth.getInstance().getCurrentUser();
-                        String uid=currentUser.getUid();
-
-                        Usuario u=new Usuario();
+                        String uidUsuario=currentUser.getUid();
+                        Usuario usuario=new Usuario();
                         Asistencia asistencia=new Asistencia();
-                        u.setNombre(nombre);
-                        u.setApellido(apellido);
-                        u.setEmail(email);
-                        u.setNick(nick);
-                        u.setPerfil("Profesor");
-                        u.setUid(uid);
-                        u.setPassword(password);
+                        Localizacion loc=new Localizacion();
 
-                        //Creamos un nodo Usuario
-                        asistencia.setUsuario(u);
+                        usuario.setNombre(nombre);
+                        usuario.setPerfil("Profesor");
+                        usuario.setApellido(apellido);
+                        usuario.setUid(uidUsuario);
+                        usuario.setEmail(email);
+                        usuario.setPassword(password);
+
+                        asistencia.setUsuario(usuario);
                         asistencia.setUid(UUID.randomUUID().toString());
-                        databaseReference.child("Usuario").child(u.getUid()).setValue(u);
-                        databaseReference.child("Asistencia").child(asistencia.getUid()).setValue(asistencia);
-                        //DatabaseReference database=firebaseDatabase.getReference();
-                        //database.child("Asistencia").setValue(asistencia);
+                        asistencia.setFichado(false);
 
-                        Toast.makeText(getApplicationContext(),"Se ha registrado correctamente",Toast.LENGTH_LONG).show();
+                        loc.setUidLoc(UUID.randomUUID().toString());
+                        loc.setLatitud(0d);
+                        loc.setLongitud(0d);
+                        loc.setUidUsuario(usuario.getUid());
+
+
+                        firebaseHelper.getDatabaseReference().child("Usuario").child(usuario.getUid()).setValue(usuario);
+                        //firebaseHelper.getDatabaseReference().child("Asistencia").child(asistencia.getUid()).setValue(asistencia);
+                        firebaseHelper.getDatabaseReference().child("Localizacion").child(loc.getUidLoc()).setValue(loc);
+
+                        Toast.makeText(getApplicationContext(),"Cuenta creada correctamente",Toast.LENGTH_LONG).show();
                         finish();
-
                     }else{
+                        Log.w("CreateUser", "createUserWithEmail:failure", task.getException());
+                        //Toast.makeText(getApplicationContext(),"No se pudo crear la cuenta",Toast.LENGTH_LONG).show();
                         if(task.getException() instanceof FirebaseAuthUserCollisionException){
                             Toast.makeText(getApplicationContext(),"El correo ya existe",Toast.LENGTH_LONG).show();
                         }
                     }
+
+                    progressDialog.dismiss();
                 }
             });
         }

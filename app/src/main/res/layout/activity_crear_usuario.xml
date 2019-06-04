@@ -8,6 +8,8 @@
     android:layout_height="match_parent"
     tools:context=".modelo.CrearUsuario">
 
+    <include layout="@layout/toolbar"></include>
+
     <LinearLayout
         android:layout_margin="10dp"
         android:orientation="vertical"

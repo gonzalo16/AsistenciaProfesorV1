@@ -1,33 +1,17 @@
 package com.example.usuario.asistenciaprofesorv1.modelo;
 
-import android.Manifest;
-import android.app.NotificationManager;
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Build;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.widget.Button;
-import android.widget.Toast;
 
 import com.example.usuario.asistenciaprofesorv1.R;
 import com.example.usuario.asistenciaprofesorv1.adaptadores.GuardiaAdapter;
-import com.example.usuario.asistenciaprofesorv1.adaptadores.ProfesorSpinAdapter;
-import com.example.usuario.asistenciaprofesorv1.entidades.Asistencia;
+import com.example.usuario.asistenciaprofesorv1.control.OpeGuardias;
 import com.example.usuario.asistenciaprofesorv1.entidades.Guardia;
 import com.example.usuario.asistenciaprofesorv1.entidades.Usuario;
-import com.example.usuario.asistenciaprofesorv1.notificaciones.Token;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -36,7 +20,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,6 +35,7 @@ public class VentanaGuardias extends AppCompatActivity {
     private FirebaseUser fuser;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
+    private OpeGuardias opeGuardias;
 
     private ArrayList<Long> distanciaHoras;
 
@@ -70,32 +54,22 @@ public class VentanaGuardias extends AppCompatActivity {
         toolbar.setTitle("Guardias");
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        usuario=(Usuario)getIntent().getExtras().getSerializable("Usuario");
 
         guardias=new ArrayList<Guardia>();
-        FirebaseApp.initializeApp(this);
-        firebaseDatabase=FirebaseDatabase.getInstance();
-        databaseReference=firebaseDatabase.getReference();
+        opeGuardias=new OpeGuardias(getApplicationContext(),usuario,recyclerView);
+        //FirebaseApp.initializeApp(this);
+        //firebaseDatabase=FirebaseDatabase.getInstance();
+        //databaseReference=firebaseDatabase.getReference();
         fuser= FirebaseAuth.getInstance().getCurrentUser();
-        usuario=(Usuario)getIntent().getExtras().getSerializable("Usuario");
+
         distanciaHoras=new ArrayList<Long>();
 
         obtenerGuardias();
 
     }
 
-    private void mostrarNotification(){
-
-        NotificationCompat.Builder builder=new NotificationCompat.Builder(getApplicationContext());
-        builder.setSmallIcon(R.drawable.ic_add_alert_black_24dp);
-        builder.setContentTitle("Nueva guardia asignada");
-        builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-        NotificationManagerCompat notificationManager=NotificationManagerCompat.from(getApplicationContext());
-        notificationManager.notify(NOTIFICATION_ID,builder.build());
-    }
 
     private long calcularHora(Date horaInicio,Date horaFin){
         long milisegundos=horaInicio.getTime()-horaFin.getTime();
@@ -103,7 +77,8 @@ public class VentanaGuardias extends AppCompatActivity {
     }
 
     private void obtenerGuardias(){
-        databaseReference.child("Guardia").addValueEventListener(new ValueEventListener() {
+        opeGuardias.obtenerGuardias("Guardia");
+        /*databaseReference.child("Guardia").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 guardias.clear();
@@ -111,11 +86,11 @@ public class VentanaGuardias extends AppCompatActivity {
                     Guardia guardia=dataSnapshot1.getValue(Guardia.class);
                     if(guardia.getUidUsuario().equals(usuario.getUid())){
                         guardias.add(guardia);
-                        distanciaHoras.add(calcularHora(guardia.getHoraInicio(),guardia.getHoraFin()));
+                        //distanciaHoras.add(calcularHora(guardia.getHoraInicio(),guardia.getHoraFin()));
                     }
                 }
 
-                adapter=new GuardiaAdapter(VentanaGuardias.this,guardias,distanciaHoras,VentanaGuardias.this);
+                adapter=new GuardiaAdapter(VentanaGuardias.this,guardias);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.VERTICAL,false));
                 recyclerView.setAdapter(adapter);
                 guardiasRecibidas++;
@@ -125,6 +100,6 @@ public class VentanaGuardias extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        });*/
     }
 }

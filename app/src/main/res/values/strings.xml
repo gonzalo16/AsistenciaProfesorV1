@@ -4,6 +4,11 @@
     <string name="hora_fin">Hora fin</string>
     <string name="registrar_guardia">Registrar guardia</string>
     <string name="title_activity_maps">Map</string>
+    <string name="campos_vacios">Campos vacíos</string>
+    <string name="email_invalido">Email no válido</string>
+    <string name="iniciando_sesion">Iniciando sesión...</string>
+    <string name="usuario_inexistente">El usuario no existe</string>
+    <string name="error_iniciar_sesion">No se pudo iniciar sesión</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

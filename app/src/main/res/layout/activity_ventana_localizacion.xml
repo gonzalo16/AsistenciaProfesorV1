@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/mapsContainer"
+    android:layout_gravity="center_vertical"
+    tools:context=".modelo.VentanaLocalizacion">
+
+
+    <include layout="@layout/toolbar"></include>
+
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_margin="10dp"
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Selecciona un profesor"
+            android:textSize="19sp" />
+
+        <Spinner
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:id="@+id/spinLocProfesor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/textColor"
+            android:background="@color/colorPrimary"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:id="@+id/btnLocalizacion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ver ubicacion" />
+    </LinearLayout>
+
+
+</LinearLayout>
